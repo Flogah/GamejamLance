@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://ck66hhmlvni7c"]
+
+[ext_resource type="PackedScene" uid="uid://capa2pk8n4d6h" path="res://Player/Player.tscn" id="1_esrvj"]
+[ext_resource type="Texture2D" uid="uid://dh76prulpqdiv" path="res://Assets/knight_idle.png" id="2_8tfth"]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="CharacterBody2D" parent="." instance=ExtResource("1_esrvj")]
+
+[node name="Sprite2D" type="Sprite2D" parent="CharacterBody2D"]
+texture = ExtResource("2_8tfth")
+vframes = 2
