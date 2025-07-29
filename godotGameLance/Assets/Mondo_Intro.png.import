@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dluujutwsppxy"
-path="res://.godot/imported/knight_running.png-bc23a7af80dc86af6dd7417a5556c26d.ctex"
+uid="uid://bm05cwhc3m5gs"
+path="res://.godot/imported/Mondo_Intro.png-07d9dfd8eccf62c12bf00511c9c8617e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/knight_running.png"
-dest_files=["res://.godot/imported/knight_running.png-bc23a7af80dc86af6dd7417a5556c26d.ctex"]
+source_file="res://Assets/Mondo_Intro.png"
+dest_files=["res://.godot/imported/Mondo_Intro.png-07d9dfd8eccf62c12bf00511c9c8617e.ctex"]
 
 [params]
 
@@ -31,4 +31,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=0
+detect_3d/compress_to=1
