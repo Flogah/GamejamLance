@@ -28,14 +28,14 @@ animations = [{
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fba3g"]
 size = Vector2(14, 24)
 
-[node name="Scarecrow" type="Node2D"]
+[node name="Scarecrow" type="Node2D" groups=["enemy"]]
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_287tu")
 animation = &"idle"
 autoplay = "idle"
 
-[node name="Killzone" parent="." instance=ExtResource("2_po58c")]
+[node name="Killzone" parent="." groups=["enemy"] instance=ExtResource("2_po58c")]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Killzone"]
 position = Vector2(-1, 2)

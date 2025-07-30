@@ -1,10 +1,11 @@
-[gd_scene load_steps=14 format=3 uid="uid://capa2pk8n4d6h"]
+[gd_scene load_steps=16 format=3 uid="uid://capa2pk8n4d6h"]
 
 [ext_resource type="Script" uid="uid://dp2flqdxj3ttw" path="res://Player/Player_controller.gd" id="1_3qydi"]
 [ext_resource type="Texture2D" uid="uid://dh76prulpqdiv" path="res://Assets/knight_idle.png" id="2_q3lat"]
 [ext_resource type="Texture2D" uid="uid://dluujutwsppxy" path="res://Assets/knight_running.png" id="3_8g4oa"]
+[ext_resource type="Texture2D" uid="uid://dlpagedrdcxk7" path="res://Assets/lance.png" id="3_tok1r"]
 [ext_resource type="Texture2D" uid="uid://0d6v1kj3g5fo" path="res://Assets/knight_walking.png" id="4_6ysni"]
-[ext_resource type="PackedScene" uid="uid://cmyceg1t11nfk" path="res://Player/Lance.tscn" id="5_8g4oa"]
+[ext_resource type="Script" uid="uid://duajuo48jty3i" path="res://Player/Lance.gd" id="5_6ysni"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_tok1r"]
 atlas = ExtResource("2_q3lat")
@@ -69,6 +70,9 @@ animations = [{
 [sub_resource type="CircleShape2D" id="CircleShape2D_8g4oa"]
 radius = 8.0
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_8g4oa"]
+size = Vector2(4.00008, 24)
+
 [node name="Player" type="CharacterBody2D"]
 z_index = 5
 collision_layer = 2
@@ -90,8 +94,19 @@ position = Vector2(0, -33)
 zoom = Vector2(2.665, 2.665)
 position_smoothing_enabled = true
 
-[node name="Lance" parent="." instance=ExtResource("5_8g4oa")]
+[node name="Lance" type="Area2D" parent="."]
 position = Vector2(0, -9)
+rotation = -1.57079
+script = ExtResource("5_6ysni")
+
+[node name="Sprite2D" type="Sprite2D" parent="Lance"]
+position = Vector2(9.48638, 9.42531)
+texture = ExtResource("3_tok1r")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Lance"]
+position = Vector2(10.8701, 10.8699)
+rotation = -0.785397
+shape = SubResource("RectangleShape2D_8g4oa")
 
 [connection signal="area_entered" from="Lance" to="." method="_on_lance_area_entered"]
 [connection signal="body_entered" from="Lance" to="." method="_on_lance_body_entered"]
