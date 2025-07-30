@@ -13,6 +13,7 @@ var spinning:bool = false
 @onready var sprite: Sprite2D = $Sprites/Sprite2D
 @onready var ray_cast: RayCast2D = $RayCast2D
 var collision_object
+var combat_mode:bool = false
 
 var facing:int = 1
 
@@ -24,9 +25,10 @@ func spin(in_direction:float) -> void:
 	spin_timer.start()
 	facing = in_direction
 
-func hold(velocity:Vector2, max_speed:float) -> void:
+func hold(velocity:Vector2, walk_speed:float, max_speed:float) -> void:
 	if spinning: return
-	var max_speed_percentage = velocity.x / max_speed
+	var max_speed_percentage = clampf(velocity.x / max_speed, -1.0, 1.0)
+	if abs(velocity.x) <= walk_speed: max_speed_percentage = 0
 	var target_rotation = up_angle + ((abs(up_angle) - abs(down_angle)) * max_speed_percentage)
 	rotation = move_toward(rotation, deg_to_rad(target_rotation), spin_speed)
 
