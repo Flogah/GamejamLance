@@ -7,15 +7,16 @@ var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 @export var sprint_speed:float = 400
 @export var accel:float = 2
 @export var slowdown:float = 30
+var looking_right:int = 1
 
 var current_speed:float = 0
 @export var jump_velocity:float = 200
 
-@export var looking_right:bool = true
+
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
-@onready var lance: Area2D = $Lance
-
+@onready var lance: Node2D = $Lance
+var lance_jump:float = 10
 
 func _ready() -> void:
 	pass
@@ -57,10 +58,7 @@ func get_input(delta: float) -> void:
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = -jump_velocity
 	elif Input.is_action_just_pressed("jump"):
-		if velocity.x < 0:
-			lance.spin(-1)
-		else:
-			lance.spin(1)
+		lance.spin(looking_right)
 	
 	if Input.is_action_just_pressed("increase_length"):
 		lance.increase_length()
@@ -72,37 +70,52 @@ func face_direction(input_direction:float) -> void:
 	if input_direction > 0:
 		#turn to the right
 		animated_sprite.flip_h = false
-		pass
+		looking_right = 1
 	elif  input_direction < 0:
 		#turn to the left
 		animated_sprite.flip_h = true
-		pass
+		looking_right = -1
 	else:
 		pass
 
-func _on_lance_body_entered(body: Node2D) -> void:
+func _on_lance_on_lance_collision(collider: Variant, collision_point: Vector2) -> void:
+	
+	if collider.is_in_group("enemy"):
+			collider.get_parent().queue_free()
+	
 	if not lance.spinning: return
-	
-	var collision_info = lance.get_last_slide_collision()
-	if collision_info:
-		print(find_catapult_vector(collision_info.get_position))
-	
-	
-	
-	if body.is_in_group("terrain"):
-		velocity.y -= lance.lance_length * 15
-		if velocity.x > 0:
-			velocity.x += lance.lance_length * 15
-		elif velocity.x < 0:
-			velocity.x -= lance.lance_length * 15
-		
-	if body.is_in_group("enemy"):
-		body.queue_free()
+	if collider.is_in_group("terrain"):
+		velocity += find_catapult_vector(collision_point) * lance.lance_length
+
 
 func find_catapult_vector(impact:Vector2) -> Vector2:
-	return position - impact
-
-
-func _on_lance_area_entered(area: Area2D) -> void:
-	if area.is_in_group("enemy"):
-		area.get_parent().queue_free()
+	var pos_imp = (position - impact)
+	pos_imp = pos_imp.rotated(deg_to_rad(90))
+	pos_imp.y = -abs(pos_imp.y)
+	return pos_imp.normalized()
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

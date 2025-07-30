@@ -1,4 +1,6 @@
-extends Area2D
+extends Node2D
+
+signal on_lance_collision(collider, collision_point)
 
 var up_angle = -90
 var down_angle = 0
@@ -9,9 +11,10 @@ var spinning:bool = false
 
 @onready var spritecontainer: Node2D = $Sprites
 @onready var sprite: Sprite2D = $Sprites/Sprite2D
-@onready var collision_shape: CollisionShape2D = $CollisionShape2D
+@onready var ray_cast: RayCast2D = $RayCast2D
+var collision_object
 
-var direction
+var facing:int = 1
 
 func _ready() -> void:
 	lance_length = sprite.position.x
@@ -19,7 +22,7 @@ func _ready() -> void:
 func spin(in_direction:float) -> void:
 	spinning = true
 	spin_timer.start()
-	direction = in_direction
+	facing = in_direction
 
 func hold(velocity:Vector2, max_speed:float) -> void:
 	if spinning: return
@@ -29,7 +32,15 @@ func hold(velocity:Vector2, max_speed:float) -> void:
 
 func _physics_process(delta: float) -> void:
 	if spinning:
-		rotation_degrees += direction * spin_speed * delta
+		rotation_degrees += facing * spin_speed * delta
+	
+	if ray_cast.is_colliding():
+		if ray_cast.get_collider() != collision_object:
+			collision_object = ray_cast.get_collider()
+			var collision_point = ray_cast.get_collision_point()
+			emit_signal("on_lance_collision", collision_object, collision_point)
+	elif collision_object != null:
+		collision_object = null
 
 func _on_spin_timer_timeout() -> void:
 	spinning = false
@@ -39,13 +50,10 @@ func increase_length() -> void:
 	lance_length += 10
 	sprite_addition.position.x = lance_length
 	spritecontainer.add_child(sprite_addition)
-	collision_shape.shape.size.x += 10
-	collision_shape.position.x += 5
-	
+	ray_cast.target_position.y += 10
 
 func decrease_length() -> void:
 	lance_length -= 10
-	collision_shape.shape.size.x -= 10
-	collision_shape.position.x -= 5
+	ray_cast.target_position.y -= 10
 	if spritecontainer.get_children().size() > 1:
 		spritecontainer.get_children().pop_back().queue_free()

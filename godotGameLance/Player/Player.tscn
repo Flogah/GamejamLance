@@ -93,5 +93,4 @@ position_smoothing_enabled = true
 [node name="Lance" parent="." instance=ExtResource("5_8g4oa")]
 position = Vector2(0, -9)
 
-[connection signal="area_entered" from="Lance" to="." method="_on_lance_area_entered"]
-[connection signal="body_entered" from="Lance" to="." method="_on_lance_body_entered"]
+[connection signal="on_lance_collision" from="Lance" to="." method="_on_lance_on_lance_collision"]
