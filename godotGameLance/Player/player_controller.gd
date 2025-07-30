@@ -2,6 +2,8 @@ extends CharacterBody2D
 
 
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
+var fall_speed = 1500 #max fall speed
+
 
 @export var speed:float = 150
 @export var sprint_speed:float = 700
@@ -10,13 +12,16 @@ var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 var looking_right:int = 1
 
 var current_speed:float = 0
-@export var jump_velocity:float = 200
+@export var jump_velocity:float = 150
 @onready var lance: Node2D = $Lance
 var lance_jump:float = 150
 
+@onready var downwards_raycast: RayCast2D = $DownwardsRaycast
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
+var max_coyote_time:float = 0.1
+var coyote_timer:float = 0.0
 
 func _ready() -> void:
 	pass
@@ -27,12 +32,20 @@ func _process(delta: float) -> void:
 
 func _physics_process(delta: float) -> void:
 	#gravity
+	if is_on_floor() and downwards_raycast.is_colliding():
+		rotation = move_toward(rotation, downwards_raycast.get_collision_normal().angle() + PI/2, 5 * delta)
 	if not is_on_floor():
-		velocity.y += gravity * delta
-
+		velocity.y = move_toward(velocity.y, fall_speed, gravity * delta)
+ 		
+		
+	_coyote_time(delta)
+	
 	lance.hold(velocity, speed, sprint_speed/3)
 
 	get_input(delta)
+	
+	
+	set_floor_snap_length(4)
 	move_and_slide()
 
 func get_input(delta: float) -> void:
@@ -55,16 +68,17 @@ func get_input(delta: float) -> void:
 		animated_sprite.play("idle")
 		velocity.x = move_toward(velocity.x, 0, slowdown)
 	
-	if Input.is_action_just_pressed("jump") and is_on_floor():
-		velocity.y = -jump_velocity
-	elif Input.is_action_just_pressed("jump"):
-		lance.spin(looking_right)
+	if Input.is_action_just_pressed("jump"):
+		if is_on_floor() or coyote_timer > 0:
+			velocity.y = -jump_velocity
+			coyote_timer = -1
+		else:
+			lance.spin(looking_right)
 	
 	if Input.is_action_just_pressed("increase_length"):
 		lance.increase_length()
 	if Input.is_action_just_pressed("decrease_length"):
 		lance.decrease_length()
-	
 
 func face_direction(input_direction:float) -> void:
 	if input_direction > 0:
@@ -79,12 +93,11 @@ func face_direction(input_direction:float) -> void:
 		pass
 
 func _on_lance_on_lance_collision(collider: Variant, collision_point: Vector2) -> void:
-	
 	if collider.is_in_group("enemy"):
-			collider.get_parent().queue_free()
+		collider.get_parent().queue_free()
 	
 	if lance.spinning and collider.is_in_group("terrain"):
-			velocity += find_catapult_vector(collision_point) * log(lance.lance_length) * lance_jump
+		velocity += find_catapult_vector(collision_point) * log(lance.lance_length) * lance_jump
 
 func find_catapult_vector(impact:Vector2) -> Vector2:
 	var pos_imp = (position - impact)
@@ -92,3 +105,9 @@ func find_catapult_vector(impact:Vector2) -> Vector2:
 	pos_imp = pos_imp.orthogonal()
 	
 	return pos_imp.normalized()
+
+func _coyote_time(delta: float) -> void:
+	if is_on_floor():
+		coyote_timer = max_coyote_time
+	else:
+		coyote_timer -= delta

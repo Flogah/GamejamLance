@@ -95,6 +95,6 @@ position = Vector2(0, -9)
 
 [node name="DownwardsRaycast" type="RayCast2D" parent="."]
 position = Vector2(0, -10)
-target_position = Vector2(0, 23)
+target_position = Vector2(0, 14)
 
 [connection signal="on_lance_collision" from="Lance" to="." method="_on_lance_on_lance_collision"]
