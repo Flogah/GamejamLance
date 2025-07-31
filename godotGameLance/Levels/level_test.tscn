@@ -159,9 +159,6 @@ position = Vector2(-1709, 99)
 [node name="Scarecrow12" parent="Enemies" instance=ExtResource("3_sppqt")]
 position = Vector2(-1739, 99)
 
-[node name="Player" parent="." instance=ExtResource("4_sppqt")]
-position = Vector2(0, 93)
-
 [node name="EnemyLabel" type="Label" parent="."]
 offset_left = -276.0
 offset_top = 8.0
@@ -183,7 +180,21 @@ offset_bottom = 31.0
 theme_override_fonts/font = ExtResource("5_oenlu")
 text = "Holes"
 
+[node name="HoleLabel2" type="Label" parent="."]
+offset_left = -166.0
+offset_top = -55.0
+offset_right = 22.0
+offset_bottom = -20.0
+theme_override_fonts/font = ExtResource("5_oenlu")
+text = "Press + and - to change the size
+of your lance (devmode only)"
+horizontal_alignment = 1
+
 [node name="TiledArrow2" type="TileMapLayer" parent="."]
 position = Vector2(233, 9)
 tile_map_data = PackedByteArray("AAD//wAAAAAEAAYAAAAAAAAAAAACAAAAAAA=")
 tile_set = ExtResource("6_oenlu")
+
+[node name="Player" parent="." instance=ExtResource("4_sppqt")]
+position = Vector2(0, 93)
+devmode = true

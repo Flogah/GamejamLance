@@ -1,5 +1,7 @@
 extends CharacterBody2D
 
+@export var devmode:bool = false
+
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 var fall_speed = 1000 #max fall speed
 
@@ -81,10 +83,11 @@ func get_input(delta: float) -> void:
 		else:
 			lance.spin(looking_right)
 	
-	#if Input.is_action_just_pressed("increase_length"):
-	#	lance.increase_length()
-	#if Input.is_action_just_pressed("decrease_length"):
-	#	lance.decrease_length()
+	if devmode:
+		if Input.is_action_just_pressed("increase_length"):
+			lance.increase_length()
+		if Input.is_action_just_pressed("decrease_length"):
+			lance.decrease_length()
 
 func face_direction(input_direction:float) -> void:
 	if input_direction > 0:
