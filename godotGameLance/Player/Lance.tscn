@@ -22,4 +22,6 @@ collide_with_areas = true
 [node name="SpinTimer" type="Timer" parent="."]
 wait_time = 0.2
 
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+
 [connection signal="timeout" from="SpinTimer" to="." method="_on_spin_timer_timeout"]

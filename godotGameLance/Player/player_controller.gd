@@ -2,6 +2,8 @@ extends CharacterBody2D
 
 @export var devmode:bool = false
 
+@export var toggle_lancemode:bool = true
+
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 var fall_speed = 1000 #max fall speed
 
@@ -83,6 +85,12 @@ func get_input(delta: float) -> void:
 		else:
 			lance.spin(looking_right)
 	
+	if Input.is_action_just_pressed("toggleMode"):
+		if toggle_lancemode:
+			toggle_lancemode = false
+		else:
+			toggle_lancemode = true
+	
 	if devmode:
 		if Input.is_action_just_pressed("increase_length"):
 			lance.increase_length()
@@ -114,9 +122,11 @@ func _on_lance_on_lance_collision(collider: Variant, collision_point: Vector2) -
 	
 	
 	if lance.spinning and collider.is_in_group("terrain"):
-		if position.y < collision_point.y:
-			velocity.y -= log(lance.lance_length) * lance_jump
-		#velocity += find_catapult_vector(collision_point) * log(lance.lance_length) * lance_jump
+		if toggle_lancemode:
+			if position.y < collision_point.y:
+				velocity.y -= log(lance.lance_length) * lance_jump
+		else:
+			velocity += find_catapult_vector(collision_point) * log(lance.lance_length) * lance_jump
 		return
 
 func find_catapult_vector(impact:Vector2) -> Vector2:

@@ -97,4 +97,6 @@ position = Vector2(0, -9)
 position = Vector2(0, -10)
 target_position = Vector2(0, 23)
 
+[node name="AudioListener2D" type="AudioListener2D" parent="."]
+
 [connection signal="on_lance_collision" from="Lance" to="." method="_on_lance_on_lance_collision"]
