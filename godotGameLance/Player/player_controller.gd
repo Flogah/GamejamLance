@@ -1,8 +1,7 @@
 extends CharacterBody2D
 
-
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
-var fall_speed = 1500 #max fall speed
+var fall_speed = 1000 #max fall speed
 
 @onready var camera: Camera2D = $Camera2D
 
@@ -57,7 +56,7 @@ func get_input(delta: float) -> void:
 	var sprint_input = Input.is_action_pressed("dash")
 	
 	if Input.is_action_just_pressed("escape"):
-		get_tree().quit()
+		find_parent("Main").open_main_menu()
 	
 	if input_direction:
 		if not sprint_input:
@@ -82,10 +81,10 @@ func get_input(delta: float) -> void:
 		else:
 			lance.spin(looking_right)
 	
-	if Input.is_action_just_pressed("increase_length"):
-		lance.increase_length()
-	if Input.is_action_just_pressed("decrease_length"):
-		lance.decrease_length()
+	#if Input.is_action_just_pressed("increase_length"):
+	#	lance.increase_length()
+	#if Input.is_action_just_pressed("decrease_length"):
+	#	lance.decrease_length()
 
 func face_direction(input_direction:float) -> void:
 	if input_direction > 0:
@@ -104,10 +103,12 @@ func _on_lance_on_lance_collision(collider: Variant, collision_point: Vector2) -
 		collider.get_parent().die()
 		return
 	
-	if lance.spinning and collider.is_in_group("destructable"):
-		collider.get_parent().explode()
-		velocity.y = -400.0
-		return
+	if collider.is_in_group("destructable"):
+		if lance.spinning:
+			velocity.y = -400.0
+			collider.get_parent().explode()
+		elif abs(velocity.x) >= sprint_speed/3: collider.get_parent().explode()
+	
 	
 	if lance.spinning and collider.is_in_group("terrain"):
 		if position.y < collision_point.y:

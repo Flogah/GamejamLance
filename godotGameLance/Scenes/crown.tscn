@@ -82,4 +82,7 @@ animation = &"Twinkle"
 autoplay = "Twinkle"
 frame_progress = 0.782637
 
+[node name="WinTimer" type="Timer" parent="."]
+
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="timeout" from="WinTimer" to="." method="_on_win_timer_timeout"]
