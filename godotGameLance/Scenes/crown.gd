@@ -19,4 +19,4 @@ func _physics_process(delta: float) -> void:
 
 
 func _on_win_timer_timeout() -> void:
-	get_tree().quit()
+	find_parent("Main").open_main_menu()
