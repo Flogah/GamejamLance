@@ -4,6 +4,8 @@ extends CharacterBody2D
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 var fall_speed = 1500 #max fall speed
 
+@onready var camera: Camera2D = $Camera2D
+
 
 @export var speed:float = 150
 @export var sprint_speed:float = 700
@@ -27,8 +29,10 @@ func _ready() -> void:
 	pass
 
 func _process(delta: float) -> void:
-	if Input.is_action_just_pressed("escape"):
-		get_tree().quit()
+	if abs(velocity.x) > speed:
+		camera.position.x += log(abs(velocity.x))/10 * looking_right
+	else:
+		camera.position.x = 0
 
 func _physics_process(delta: float) -> void:
 	#gravity
@@ -51,6 +55,9 @@ func _physics_process(delta: float) -> void:
 func get_input(delta: float) -> void:
 	var input_direction = Input.get_axis("left", "right")
 	var sprint_input = Input.is_action_pressed("dash")
+	
+	if Input.is_action_just_pressed("escape"):
+		get_tree().quit()
 	
 	if input_direction:
 		if not sprint_input:
@@ -93,11 +100,20 @@ func face_direction(input_direction:float) -> void:
 		pass
 
 func _on_lance_on_lance_collision(collider: Variant, collision_point: Vector2) -> void:
-	if collider.is_in_group("enemy"):
-		collider.get_parent().queue_free()
+	if collider.is_in_group("enemy") and abs(velocity.x) >= sprint_speed/3:
+		collider.get_parent().die()
+		return
+	
+	if lance.spinning and collider.is_in_group("destructable"):
+		collider.get_parent().explode()
+		velocity.y = -400.0
+		return
 	
 	if lance.spinning and collider.is_in_group("terrain"):
-		velocity += find_catapult_vector(collision_point) * log(lance.lance_length) * lance_jump
+		if position.y < collision_point.y:
+			velocity.y -= log(lance.lance_length) * lance_jump
+		#velocity += find_catapult_vector(collision_point) * log(lance.lance_length) * lance_jump
+		return
 
 func find_catapult_vector(impact:Vector2) -> Vector2:
 	var pos_imp = (position - impact)

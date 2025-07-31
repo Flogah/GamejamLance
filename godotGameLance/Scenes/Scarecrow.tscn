@@ -1,7 +1,21 @@
-[gd_scene load_steps=7 format=3 uid="uid://rf5cbilnrg3b"]
+[gd_scene load_steps=13 format=3 uid="uid://rf5cbilnrg3b"]
 
 [ext_resource type="Texture2D" uid="uid://dh76prulpqdiv" path="res://Assets/knight_idle.png" id="1_1ylap"]
+[ext_resource type="Script" uid="uid://cfvxoa4prxxti" path="res://Scenes/scarecrow.gd" id="1_fba3g"]
+[ext_resource type="Texture2D" uid="uid://bk5cmt1sqxcrv" path="res://Assets/knight_death.png" id="2_mgtmj"]
 [ext_resource type="PackedScene" uid="uid://be2647gn13omy" path="res://Scenes/killzone.tscn" id="2_po58c"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lc8y2"]
+atlas = ExtResource("2_mgtmj")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_om2dl"]
+atlas = ExtResource("2_mgtmj")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ggtm7"]
+atlas = ExtResource("2_mgtmj")
+region = Rect2(0, 32, 32, 32)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_1f0kj"]
 atlas = ExtResource("1_1ylap")
@@ -13,6 +27,20 @@ region = Rect2(0, 32, 32, 32)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_287tu"]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lc8y2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_om2dl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ggtm7")
+}],
+"loop": false,
+"name": &"death",
+"speed": 5.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_1f0kj")
@@ -28,15 +56,31 @@ animations = [{
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fba3g"]
 size = Vector2(14, 24)
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_5ftri"]
+
 [node name="Scarecrow" type="Node2D" groups=["enemy"]]
+script = ExtResource("1_fba3g")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_287tu")
 animation = &"idle"
 autoplay = "idle"
 
-[node name="Killzone" parent="." groups=["enemy"] instance=ExtResource("2_po58c")]
+[node name="Killzone" parent="." instance=ExtResource("2_po58c")]
+collision_layer = 8
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Killzone"]
 position = Vector2(-1, 2)
 shape = SubResource("RectangleShape2D_fba3g")
+
+[node name="CharacterBody2D" type="CharacterBody2D" parent="." groups=["enemy"]]
+collision_layer = 8
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D"]
+shape = SubResource("CircleShape2D_5ftri")
+
+[node name="HitstopTimer" type="Timer" parent="."]
+wait_time = 0.05
+
+[connection signal="timeout" from="HitstopTimer" to="." method="_on_hitstop_timer_timeout"]

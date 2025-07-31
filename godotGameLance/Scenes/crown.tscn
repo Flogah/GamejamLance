@@ -1,0 +1,85 @@
+[gd_scene load_steps=11 format=3 uid="uid://bmv233bql2wa8"]
+
+[ext_resource type="Script" uid="uid://bb570n24f6hys" path="res://Scenes/crown.gd" id="1_y70y7"]
+[ext_resource type="Texture2D" uid="uid://pglkhfk0s1td" path="res://Assets/crown.png" id="2_sx07g"]
+[ext_resource type="FontFile" uid="uid://hiwj1mc3hqmk" path="res://Fonts/Minecraft.ttf" id="3_84lf2"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_k2bse"]
+radius = 17.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f4pg2"]
+atlas = ExtResource("2_sx07g")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_62b6n"]
+atlas = ExtResource("2_sx07g")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rs4xw"]
+atlas = ExtResource("2_sx07g")
+region = Rect2(0, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lk57d"]
+atlas = ExtResource("2_sx07g")
+region = Rect2(32, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2hkqn"]
+atlas = ExtResource("2_sx07g")
+region = Rect2(0, 64, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_34erp"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f4pg2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_62b6n")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rs4xw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lk57d")
+}, {
+"duration": 2.0,
+"texture": SubResource("AtlasTexture_2hkqn")
+}],
+"loop": true,
+"name": &"Twinkle",
+"speed": 5.0
+}]
+
+[node name="Crown" type="Area2D" groups=["crown"]]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_y70y7")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_k2bse")
+
+[node name="WinScreen" type="ColorRect" parent="."]
+visible = false
+offset_left = -382.0
+offset_top = -235.0
+offset_right = 379.0
+offset_bottom = 224.0
+
+[node name="Win" type="Label" parent="WinScreen"]
+layout_mode = 0
+offset_left = 269.0
+offset_top = 172.0
+offset_right = 491.0
+offset_bottom = 207.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("3_84lf2")
+text = "Eure Lordschaft!"
+horizontal_alignment = 1
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_34erp")
+animation = &"Twinkle"
+autoplay = "Twinkle"
+frame_progress = 0.782637
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
