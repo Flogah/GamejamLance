@@ -25,6 +25,10 @@ var lance_jump:float = 150
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
+@onready var jump: AudioStreamPlayer2D = $Sounds/Jump
+@onready var lance_swing: AudioStreamPlayer2D = $Sounds/LanceSwing
+@onready var stab: AudioStreamPlayer2D = $Sounds/Stab
+
 var max_coyote_time:float = 0.1
 var coyote_timer:float = 0.0
 
@@ -80,9 +84,11 @@ func get_input(delta: float) -> void:
 	
 	if Input.is_action_just_pressed("jump"):
 		if is_on_floor() or coyote_timer > 0:
+			jump.play()
 			velocity.y = -jump_velocity
 			coyote_timer = -1
 		else:
+			lance_swing.play()
 			lance.spin(looking_right)
 	
 	if Input.is_action_just_pressed("toggleMode"):
@@ -111,6 +117,7 @@ func face_direction(input_direction:float) -> void:
 
 func _on_lance_on_lance_collision(collider: Variant, collision_point: Vector2) -> void:
 	if collider.is_in_group("enemy") and abs(velocity.x) >= sprint_speed/3:
+		stab.play()
 		collider.get_parent().die()
 		return
 	
