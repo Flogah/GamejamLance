@@ -2,6 +2,7 @@ extends CharacterBody2D
 
 @export var devmode:bool = false
 
+@onready var speedometer: Label = $Speedometer
 
 
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
@@ -52,6 +53,8 @@ func _physics_process(delta: float) -> void:
 
 	get_input(delta)
 	
+	# update speedometer
+	speedometer.text = "Speed: " + str(velocity.x)
 	
 	set_floor_snap_length(4)
 	move_and_slide()
@@ -59,7 +62,7 @@ func _physics_process(delta: float) -> void:
 func get_input(delta: float) -> void:
 	var input_direction = Input.get_axis("left", "right")
 	var sprint_input = Input.is_action_pressed("dash")
-	input_5(input_direction, sprint_input)
+	input_6(input_direction, sprint_input)
 	
 	# -----------------OTHER BUTTONS-----------------------
 	if Input.is_action_just_pressed("escape"):
@@ -166,26 +169,66 @@ func input_4(input_direction, sprint_input):
 	else: animated_sprite.play("idle")
 #_________INPUT System 5: More Control
 func input_5(input_direction, sprint_input):
-	var target_speed:float = 0.0
-	var target_accel:float = accel
+	if input_direction:
+		face_direction(input_direction)
+		if is_on_floor():
+			
+			# for more control on the ground, you can instantly flip your speed
+			if velocity.x > 0 and input_direction < 0:
+				velocity.x = velocity.x * -1
+			if velocity.x < 0 and input_direction > 0:
+				velocity.x = velocity.x * -1
+			
+			if sprint_input:
+				if abs(velocity.x) > walk_speed:
+					velocity.x = move_toward(velocity.x, sprint_speed * input_direction, slow_accel)
+				else:
+					velocity.x = move_toward(velocity.x, sprint_speed * input_direction, accel)
+			else:
+				velocity.x = move_toward(velocity.x, walk_speed * input_direction, accel)
+		else:
+			velocity.x = move_toward(velocity.x, walk_speed * input_direction, slow_accel)
+	else:
+		if is_on_floor():
+			velocity.x = move_toward(velocity.x, 0, accel)
+		else:
+			velocity.x = move_toward(velocity.x, 0, slow_accel)
+	
+#_________INPUT System 6: cleaned up 5
+func input_6(input_direction, sprint_input):
+	var target_speed: float = 0.0
+	var target_accel: float = 0.0
 	
 	if input_direction:
 		face_direction(input_direction)
-		target_speed = walk_speed * input_direction
-		if sprint_input:
-			target_speed = sprint_speed * input_direction
-	else:
-		target_speed = 0.0
-	
-	if is_on_floor():
-		if abs(velocity.x) > walk_speed and input_direction:
-			target_accel = slow_accel
+		if is_on_floor():
+			
+			# for more control on the ground, you can instantly flip your speed
+			if velocity.x > 0 and input_direction < 0:
+				velocity.x = velocity.x * -1
+			if velocity.x < 0 and input_direction > 0:
+				velocity.x = velocity.x * -1
+			
+			if sprint_input:
+				target_speed = sprint_speed
+				if abs(velocity.x) > walk_speed:
+					target_accel = slow_accel
+				else:
+					target_accel = accel
+			else:
+				target_speed = walk_speed
+				target_accel = accel
 		else:
-			target_accel = accel
+			target_speed = walk_speed
+			target_accel = slow_accel
 	else:
-		target_accel = slow_accel
+		target_speed = 0
+		if is_on_floor():
+			target_accel = accel
+		else:
+			target_accel = slow_accel
 	
-	velocity.x = move_toward(velocity.x, target_speed, target_accel)
+	velocity.x = move_toward(velocity.x, target_speed * input_direction, target_accel)
 
 func face_direction(input_direction:float) -> void:
 	if input_direction > 0:

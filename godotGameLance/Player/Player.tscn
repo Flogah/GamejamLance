@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://capa2pk8n4d6h"]
+[gd_scene load_steps=19 format=3 uid="uid://capa2pk8n4d6h"]
 
 [ext_resource type="Script" uid="uid://dp2flqdxj3ttw" path="res://Player/player_controller.gd" id="1_3qydi"]
 [ext_resource type="Texture2D" uid="uid://dh76prulpqdiv" path="res://Assets/knight_idle.png" id="2_q3lat"]
@@ -8,6 +8,7 @@
 [ext_resource type="AudioStream" uid="uid://c5poexeki7o35" path="res://Assets/Audio/Jump.wav" id="6_vlldt"]
 [ext_resource type="AudioStream" uid="uid://b51gwam03tt8p" path="res://Assets/Audio/Lanze_schwingen.wav" id="7_s1rgi"]
 [ext_resource type="AudioStream" uid="uid://b0ddq4qma73r1" path="res://Assets/Audio/Stab.wav" id="8_s1rgi"]
+[ext_resource type="FontFile" uid="uid://hiwj1mc3hqmk" path="res://Fonts/Minecraft.ttf" id="9_j23h2"]
 
 [sub_resource type="Curve" id="Curve_s1rgi"]
 _limits = [0.0, 100.0, 0.0, 750.0]
@@ -119,5 +120,13 @@ volume_db = 14.643
 [node name="Stab" type="AudioStreamPlayer2D" parent="Sounds"]
 stream = ExtResource("8_s1rgi")
 volume_db = 14.643
+
+[node name="Speedometer" type="Label" parent="."]
+offset_left = -70.0
+offset_top = -75.0
+offset_right = -19.0
+offset_bottom = -52.0
+theme_override_fonts/font = ExtResource("9_j23h2")
+text = "Speed:"
 
 [connection signal="on_lance_collision" from="Lance" to="." method="_on_lance_on_lance_collision"]
