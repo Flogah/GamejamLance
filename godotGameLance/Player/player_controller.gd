@@ -2,7 +2,7 @@ extends CharacterBody2D
 
 @export var devmode:bool = false
 
-@export var toggle_lancemode:bool = true
+
 
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 var fall_speed = 1000 #max fall speed
@@ -10,21 +10,26 @@ var fall_speed = 1000 #max fall speed
 @onready var camera: Camera2D = $Camera2D
 
 
-@export var speed:float = 150
+@export var walk_speed:float = 150
 @export var sprint_speed:float = 700
-@export var accel:float = 2
-@export var slowdown:float = 30
+@export var slow_accel:float = 2
+@export var accel:float = 70
+@export var decel:float = 70
+@export var acceleration_curve:Curve
 var looking_right:int = 1
 
 var current_speed:float = 0
-@export var jump_velocity:float = 150
+
+@export var jump_velocity:float = 350
 @onready var lance: Node2D = $Lance
 var lance_jump:float = 150
+@export var toggle_lancemode:bool = true
 
+# VISUAL
 @onready var downwards_raycast: RayCast2D = $DownwardsRaycast
-
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
+# AUDIO
 @onready var jump: AudioStreamPlayer2D = $Sounds/Jump
 @onready var lance_swing: AudioStreamPlayer2D = $Sounds/LanceSwing
 @onready var stab: AudioStreamPlayer2D = $Sounds/Stab
@@ -32,26 +37,18 @@ var lance_jump:float = 150
 var max_coyote_time:float = 0.1
 var coyote_timer:float = 0.0
 
-func _ready() -> void:
-	pass
-
-func _process(delta: float) -> void:
-	if abs(velocity.x) > speed:
-		camera.position.x += log(abs(velocity.x))/10 * looking_right
-	else:
-		camera.position.x = 0
-
 func _physics_process(delta: float) -> void:
-	#gravity
+	
+	# align player with the floor
 	if is_on_floor() and downwards_raycast.is_colliding():
 		rotation = move_toward(rotation, downwards_raycast.get_collision_normal().angle() + PI/2, 5 * delta)
+	# gravity
 	if not is_on_floor():
 		velocity.y = move_toward(velocity.y, fall_speed, gravity * delta)
- 		
 		
 	_coyote_time(delta)
 	
-	lance.hold(velocity, speed, sprint_speed/3)
+	lance.hold(velocity, walk_speed, sprint_speed/3)
 
 	get_input(delta)
 	
@@ -62,25 +59,11 @@ func _physics_process(delta: float) -> void:
 func get_input(delta: float) -> void:
 	var input_direction = Input.get_axis("left", "right")
 	var sprint_input = Input.is_action_pressed("dash")
+	input_5(input_direction, sprint_input)
 	
+	# -----------------OTHER BUTTONS-----------------------
 	if Input.is_action_just_pressed("escape"):
 		find_parent("Main").open_main_menu()
-	
-	if input_direction:
-		if not sprint_input:
-			animated_sprite.play("walk")
-			if current_speed > speed:
-				current_speed = move_toward(current_speed, speed, slowdown)
-			else:
-				current_speed = speed
-		else:
-			animated_sprite.play("run")
-			current_speed = move_toward(current_speed, sprint_speed, accel)
-		velocity.x = input_direction * current_speed
-		face_direction(input_direction)
-	elif is_on_floor():
-		animated_sprite.play("idle")
-		velocity.x = move_toward(velocity.x, 0, slowdown)
 	
 	if Input.is_action_just_pressed("jump"):
 		if is_on_floor() or coyote_timer > 0:
@@ -102,6 +85,107 @@ func get_input(delta: float) -> void:
 			lance.increase_length()
 		if Input.is_action_just_pressed("decrease_length"):
 			lance.decrease_length()
+	
+	
+#_____________INPUT System 1: Jank
+func input_1(input_direction, sprint_input):
+	var target_speed:float = 0.0
+	if input_direction:
+		if not sprint_input:
+			animated_sprite.play("walk")
+			if current_speed > walk_speed:
+				current_speed = move_toward(current_speed, walk_speed, decel)
+			else:
+				current_speed = walk_speed
+			animated_sprite.play("run")
+			current_speed = move_toward(current_speed, sprint_speed, accel)
+		velocity.x = input_direction * current_speed
+		face_direction(input_direction)
+	elif is_on_floor():
+		animated_sprite.play("idle")
+		velocity.x = move_toward(velocity.x, 0, decel)
+#_________INPUT System 2: Boring
+func input_2(input_direction, sprint_input):
+	var target_speed:float = 0.0
+	if input_direction:
+		face_direction(input_direction)
+		if sprint_input:
+			animated_sprite.play("run")
+			target_speed = sprint_speed * input_direction
+		else:
+			animated_sprite.play("walk")
+			target_speed = walk_speed * input_direction
+	elif is_on_floor():
+		animated_sprite.play("idle")
+		target_speed = 0.0
+	
+	if abs(velocity.x) < walk_speed:
+		velocity.x = move_toward(velocity.x, target_speed, accel)
+	elif target_speed == 0.0:
+		velocity.x = move_toward(velocity.x, target_speed, decel)
+	else:
+		velocity.x = move_toward(velocity.x, target_speed, slow_accel)
+#_________INPUT System 3: Modified 1
+func input_3(input_direction, sprint_input):
+	var target_speed:float = 0.0
+	if input_direction:
+		if sprint_input:
+			animated_sprite.play("run")
+			target_speed = sprint_speed
+		else:
+			animated_sprite.play("walk")
+			target_speed = walk_speed
+		
+		velocity.x = move_toward(velocity.x, input_direction * target_speed, accel)
+		face_direction(input_direction)
+		
+	elif is_on_floor():
+		animated_sprite.play("idle")
+		velocity.x = move_toward(velocity.x, 0.0, decel)
+#_________INPUT System 4: Curves
+func input_4(input_direction, sprint_input):
+	var walking_speed = acceleration_curve.get_point_position(0).x
+	var running_speed = acceleration_curve.max_domain
+
+	if input_direction:
+		var target_speed = walking_speed
+		if sprint_input:
+			target_speed = running_speed
+		
+		var target_accel = acceleration_curve.sample(abs(velocity.x))
+		
+		velocity.x = move_toward(velocity.x, input_direction * target_speed, target_accel)
+		face_direction(input_direction)
+	else:
+		velocity.x = move_toward(velocity.x, 0.0, 70)
+
+	if abs(velocity.x) > 0:
+		animated_sprite.play("walk")
+		if abs(velocity.x) > walking_speed:
+			animated_sprite.play("run")
+	else: animated_sprite.play("idle")
+#_________INPUT System 5: More Control
+func input_5(input_direction, sprint_input):
+	var target_speed:float = 0.0
+	var target_accel:float = accel
+	
+	if input_direction:
+		face_direction(input_direction)
+		target_speed = walk_speed * input_direction
+		if sprint_input:
+			target_speed = sprint_speed * input_direction
+	else:
+		target_speed = 0.0
+	
+	if is_on_floor():
+		if abs(velocity.x) > walk_speed and input_direction:
+			target_accel = slow_accel
+		else:
+			target_accel = accel
+	else:
+		target_accel = slow_accel
+	
+	velocity.x = move_toward(velocity.x, target_speed, target_accel)
 
 func face_direction(input_direction:float) -> void:
 	if input_direction > 0:
