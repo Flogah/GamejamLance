@@ -77,6 +77,7 @@ radius = 8.0
 z_index = 5
 collision_layer = 2
 script = ExtResource("1_3qydi")
+toggle_lancemode = false
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -14)
