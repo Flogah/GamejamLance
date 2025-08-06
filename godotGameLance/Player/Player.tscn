@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://capa2pk8n4d6h"]
+[gd_scene load_steps=18 format=3 uid="uid://capa2pk8n4d6h"]
 
 [ext_resource type="Script" uid="uid://dp2flqdxj3ttw" path="res://Player/player_controller.gd" id="1_3qydi"]
 [ext_resource type="Texture2D" uid="uid://dh76prulpqdiv" path="res://Assets/knight_idle.png" id="2_q3lat"]
@@ -9,11 +9,6 @@
 [ext_resource type="AudioStream" uid="uid://b51gwam03tt8p" path="res://Assets/Audio/Lanze_schwingen.wav" id="7_s1rgi"]
 [ext_resource type="AudioStream" uid="uid://b0ddq4qma73r1" path="res://Assets/Audio/Stab.wav" id="8_s1rgi"]
 [ext_resource type="FontFile" uid="uid://hiwj1mc3hqmk" path="res://Fonts/Minecraft.ttf" id="9_j23h2"]
-
-[sub_resource type="Curve" id="Curve_s1rgi"]
-_limits = [0.0, 100.0, 0.0, 750.0]
-_data = [Vector2(150, 69.4631), 0.0, -2.61484, 0, 0, Vector2(151.355, 3.20127), 0.0, 0.0, 0, 0, Vector2(219.932, 2.62646), 0.0, 0.0, 0, 0]
-point_count = 3
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_tok1r"]
 atlas = ExtResource("2_q3lat")
@@ -82,7 +77,6 @@ radius = 8.0
 z_index = 5
 collision_layer = 2
 script = ExtResource("1_3qydi")
-acceleration_curve = SubResource("Curve_s1rgi")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -14)
