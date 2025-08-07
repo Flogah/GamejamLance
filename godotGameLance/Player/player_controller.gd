@@ -19,7 +19,7 @@ var looking_right:int = 1
 
 var current_speed:float = 0
 
-@export var jump_velocity:float = 350
+@export var jump_velocity:float = 250
 @onready var lance: Node2D = $Lance
 var lance_jump:float = 150
 @export var toggle_lancemode:bool = true
@@ -35,6 +35,8 @@ var lance_jump:float = 150
 
 var max_coyote_time:float = 0.1
 var coyote_timer:float = 0.0
+
+
 
 func _physics_process(delta: float) -> void:
 	
@@ -62,37 +64,36 @@ func get_input(delta: float) -> void:
 	var sprint_input = Input.is_action_pressed("dash")
 
 	#region handle acceleration/speed
-	var target_speed: float = 0.0
-	var target_accel: float = 0.0
 	if input_direction:
 		face_direction(input_direction)
+		
+		# turn around fast while on the ground
+		# no matter at what speed
 		if is_on_floor():
-			
-			# for more control on the ground, you can instantly flip your speed
 			if velocity.x > 0 and input_direction < 0:
 				velocity.x = velocity.x * -1
 			if velocity.x < 0 and input_direction > 0:
 				velocity.x = velocity.x * -1
+		
+		if abs(velocity.x) < walk_speed + 1:
+			# what happens while at walking speed
+			velocity.x = move_toward(velocity.x, walk_speed * input_direction, accel)
 			
-			if sprint_input:
-				target_speed = sprint_speed
-				if abs(velocity.x) > walk_speed:
-					target_accel = slow_accel
-				else:
-					target_accel = accel
+		if sprint_input:
+			# is input and speed point in the same direction?
+			if (velocity.x > 0 and input_direction > 0) or (velocity.x < 0 and input_direction < 0):
+				velocity.x = move_toward(velocity.x, sprint_speed * input_direction, slow_accel)
 			else:
-				target_speed = walk_speed
-				target_accel = accel
-		else:
-			target_speed = walk_speed
-			target_accel = slow_accel
+				velocity.x = move_toward(velocity.x, walk_speed * input_direction, accel)
+			
 	else:
-		target_speed = 0
 		if is_on_floor():
-			target_accel = accel
+			# no input, on the floor = slow down quickly
+			velocity.x = move_toward(velocity.x, walk_speed * input_direction, accel)
 		else:
-			target_accel = slow_accel
-	velocity.x = move_toward(velocity.x, target_speed * input_direction, target_accel)
+			# no input, in the air = no change
+			pass
+	
 	#endregion
 	
 	if Input.is_action_just_pressed("jump"):
@@ -105,7 +106,8 @@ func get_input(delta: float) -> void:
 			lance.spin(looking_right)
 	
 	if Input.is_action_just_pressed("escape"):
-		find_parent("Main").open_main_menu()
+		if devmode: get_tree().quit()
+		else: find_parent("Main").open_main_menu()
 	
 	if Input.is_action_just_pressed("toggleMode"):
 		if toggle_lancemode:
