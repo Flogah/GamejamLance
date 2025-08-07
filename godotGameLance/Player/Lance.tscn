@@ -1,27 +1,104 @@
-[gd_scene load_steps=3 format=3 uid="uid://cmyceg1t11nfk"]
+[gd_scene load_steps=7 format=3 uid="uid://cmyceg1t11nfk"]
 
 [ext_resource type="Script" uid="uid://duajuo48jty3i" path="res://Player/Lance.gd" id="1_5sss1"]
 [ext_resource type="Texture2D" uid="uid://dlpagedrdcxk7" path="res://Assets/lance.png" id="2_8jdyb"]
+[ext_resource type="Texture2D" uid="uid://cj8wybwop38b1" path="res://Assets/spinningFX.png" id="3_8jdyb"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hoy77"]
+atlas = ExtResource("3_8jdyb")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ycky5"]
+atlas = ExtResource("3_8jdyb")
+region = Rect2(0, 128, 128, 128)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_3e6jb"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hoy77")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ycky5")
+}],
+"loop": true,
+"name": &"spinningLance",
+"speed": 8.0
+}]
 
 [node name="Lance" type="Node2D"]
 script = ExtResource("1_5sss1")
 
-[node name="Sprites" type="Node2D" parent="."]
+[node name="LanceSprites" type="Node2D" parent="."]
 
-[node name="Sprite2D" type="Sprite2D" parent="Sprites"]
+[node name="BaseLance" type="Sprite2D" parent="LanceSprites"]
 position = Vector2(13, 9.53674e-07)
 rotation = -0.785398
 texture = ExtResource("2_8jdyb")
 
-[node name="RayCast2D" type="RayCast2D" parent="."]
+[node name="Lancetip" type="RayCast2D" parent="."]
 rotation = -1.5708
-target_position = Vector2(0, 32)
-collision_mask = 13
-collide_with_areas = true
+target_position = Vector2(-1.39876e-06, 32)
 
 [node name="SpinTimer" type="Timer" parent="."]
 wait_time = 0.2
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+
+[node name="SpinningSprite" type="AnimatedSprite2D" parent="."]
+scale = Vector2(0.5, 0.5)
+sprite_frames = SubResource("SpriteFrames_3e6jb")
+animation = &"spinningLance"
+autoplay = "spinningLance"
+frame_progress = 0.779647
+
+[node name="Raycasts" type="Node2D" parent="."]
+
+[node name="RayCast2D" type="RayCast2D" parent="Raycasts"]
+target_position = Vector2(0, 32)
+collision_mask = 13
+collide_with_areas = true
+
+[node name="RayCast2D2" type="RayCast2D" parent="Raycasts"]
+rotation = 0.785398
+target_position = Vector2(0, 32)
+collision_mask = 13
+collide_with_areas = true
+
+[node name="RayCast2D3" type="RayCast2D" parent="Raycasts"]
+rotation = 1.5708
+target_position = Vector2(0, 32)
+collision_mask = 13
+collide_with_areas = true
+
+[node name="RayCast2D4" type="RayCast2D" parent="Raycasts"]
+rotation = 2.35619
+target_position = Vector2(0, 32)
+collision_mask = 13
+collide_with_areas = true
+
+[node name="RayCast2D5" type="RayCast2D" parent="Raycasts"]
+rotation = 3.14159
+target_position = Vector2(0, 32)
+collision_mask = 13
+collide_with_areas = true
+
+[node name="RayCast2D6" type="RayCast2D" parent="Raycasts"]
+rotation = 3.92699
+target_position = Vector2(0, 32)
+collision_mask = 13
+collide_with_areas = true
+
+[node name="RayCast2D7" type="RayCast2D" parent="Raycasts"]
+rotation = 4.71239
+target_position = Vector2(0, 32)
+collision_mask = 13
+collide_with_areas = true
+
+[node name="RayCast2D8" type="RayCast2D" parent="Raycasts"]
+rotation = 5.49779
+target_position = Vector2(0, 32)
+collision_mask = 13
+collide_with_areas = true
 
 [connection signal="timeout" from="SpinTimer" to="." method="_on_spin_timer_timeout"]
