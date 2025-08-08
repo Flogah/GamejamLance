@@ -1,12 +1,11 @@
 extends Node2D
 
-signal on_lance_collision(collider, collision_point)
+signal on_lance_collision(collider)
 
 var up_angle = -90
 var down_angle = 0
 var spin_speed:float = 1600
 var spinning:bool = false
-@onready var spin_timer: Timer = $SpinTimer
 @export var lance_length:float = 13
 
 @onready var spinning_sprite: AnimatedSprite2D = $SpinningSprite
@@ -14,7 +13,7 @@ var spinning:bool = false
 
 @onready var lanceSpritecontainer: Node2D = $LanceSprites
 @onready var lanceSprite: Sprite2D = $LanceSprites/BaseLance
-#@onready var ray_cast: RayCast2D = $RayCast2D
+@onready var lancetip: RayCast2D = $Lancetip
 var collision_object
 var combat_mode:bool = false
 
@@ -23,8 +22,15 @@ var facing:int = 1
 func _ready() -> void:
 	spinning_sprite.visible = false
 
+func _physics_process(delta: float) -> void:
+	lance_colliding()
+	
+
+func lance_colliding():
+	if !lancetip.is_colliding(): return
+	emit_signal("on_lance_collision", lancetip.get_collider())
+
 func spin(in_direction:float) -> void:
-	spin_timer.start()
 	facing = in_direction
 	lanceSpritecontainer.visible = false
 	spinning_sprite.visible = true
@@ -33,12 +39,15 @@ func spin(in_direction:float) -> void:
 	var colliding_rays:Array
 	for ray in raycasts.get_children():
 		if ray.is_colliding():
-			if ray.get_collider().is_in_group("enemy"):
+			var collider = ray.get_collider()
+			if collider.is_in_group("enemy"):
 				pass
-			if ray.get_collider().is_in_group("destructable"):
-				pass
-			if ray.get_collider().is_in_group("terrain"):
 				
+			if collider.is_in_group("destructable"):
+				get_parent().velocity.y = -400.0
+				collider.get_parent().explode()
+				
+			if collider.is_in_group("terrain"):
 				colliding_rays.append(ray)
 				var col_distance = ray.global_position.distance_to(ray.get_collision_point())
 				var col_normal = ray.get_collision_normal()
@@ -76,13 +85,18 @@ func spin(in_direction:float) -> void:
 			#velocity += find_catapult_vector(collision_point) * log(lance.lance_length) * lance_jump
 		#return
 
-func hold(velocity:Vector2, walk_speed:float, max_speed:float) -> void:
-	var max_speed_percentage = clampf(velocity.x / max_speed, -1.0, 1.0)
-	if abs(velocity.x) <= walk_speed: max_speed_percentage = 0
-	var target_rotation = up_angle + ((abs(up_angle) - abs(down_angle)) * max_speed_percentage)
-	lanceSpritecontainer.rotation = move_toward(rotation, deg_to_rad(target_rotation), spin_speed)
+func hold(input_direction:float, velocity:Vector2, walk_speed:float, max_speed:float) -> void:
+	var max_speed_percentage = clampf(inverse_lerp(walk_speed, max_speed, abs(velocity.x)), -1, 1)
+	var target_rotation = up_angle
+	if max_speed_percentage > 0:
+		if input_direction > 0:
+			target_rotation = lerp(-90, 0, max_speed_percentage)
+		if input_direction < 0:
+			target_rotation = lerp(-90, -180, max_speed_percentage)
+	lanceSpritecontainer.rotation = deg_to_rad(target_rotation)
+	lancetip.rotation = deg_to_rad(target_rotation - 90)
 
-func _on_spin_timer_timeout() -> void:
+func stop_spin() -> void:
 	lanceSpritecontainer.visible = true
 	spinning_sprite.visible = false
 

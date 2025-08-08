@@ -2,41 +2,36 @@ extends CharacterBody2D
 
 @export var devmode:bool = false
 
+# COMPONENTS
 @onready var speedometer: Label = $Speedometer
+@onready var lance: Node2D = $Lance
 
-
+# GRAVITY
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 var fall_speed = 1000 #max fall speed
 
-@onready var camera: Camera2D = $Camera2D
-
-
+# JUMP N RUN
 @export var walk_speed:float = 150
+@export var spear_speed:float = 250
 @export var sprint_speed:float = 700
+
 @export var slow_accel:float = 2
 @export var accel:float = 70
-var looking_right:int = 1
-
-var current_speed:float = 0
 
 @export var jump_velocity:float = 250
-@onready var lance: Node2D = $Lance
-var lance_jump:float = 150
-@export var toggle_lancemode:bool = true
+var max_coyote_time:float = 0.1
+var coyote_timer:float = 0.0
+var lancejumped:bool = false
 
-# VISUAL
+# VISUAL SENSE
 @onready var downwards_raycast: RayCast2D = $DownwardsRaycast
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
+var looking_right:int = 1
 
 # AUDIO
 @onready var jump: AudioStreamPlayer2D = $Sounds/Jump
 @onready var lance_swing: AudioStreamPlayer2D = $Sounds/LanceSwing
 @onready var stab: AudioStreamPlayer2D = $Sounds/Stab
-
-var max_coyote_time:float = 0.1
-var coyote_timer:float = 0.0
-
-
 
 func _physics_process(delta: float) -> void:
 	
@@ -49,12 +44,11 @@ func _physics_process(delta: float) -> void:
 		
 	_coyote_time(delta)
 	
-	lance.hold(velocity, walk_speed, sprint_speed/3)
-
 	get_input(delta)
 	
 	# update speedometer
-	speedometer.text = "Speed: " + str(velocity.x)
+	if devmode:
+		speedometer.text = "Speed: " + str(velocity.x)
 	
 	set_floor_snap_length(4)
 	move_and_slide()
@@ -62,7 +56,8 @@ func _physics_process(delta: float) -> void:
 func get_input(delta: float) -> void:
 	var input_direction = Input.get_axis("left", "right")
 	var sprint_input = Input.is_action_pressed("dash")
-
+	
+	lance.hold(looking_right, velocity, walk_speed, spear_speed)
 	#region handle acceleration/speed
 	if input_direction:
 		face_direction(input_direction)
@@ -75,17 +70,22 @@ func get_input(delta: float) -> void:
 			if velocity.x < 0 and input_direction > 0:
 				velocity.x = velocity.x * -1
 		
-		if abs(velocity.x) < walk_speed + 1:
-			# what happens while at walking speed
-			velocity.x = move_toward(velocity.x, walk_speed * input_direction, accel)
-			
+
+		
+		
 		if sprint_input:
 			# is input and speed point in the same direction?
 			if (velocity.x > 0 and input_direction > 0) or (velocity.x < 0 and input_direction < 0):
-				velocity.x = move_toward(velocity.x, sprint_speed * input_direction, slow_accel)
+				if is_on_floor():
+					velocity.x = move_toward(velocity.x, sprint_speed * input_direction, slow_accel)
 			else:
 				velocity.x = move_toward(velocity.x, walk_speed * input_direction, accel)
-			
+		
+		elif abs(velocity.x) < walk_speed + 1:
+			# what happens while at walking speed
+			velocity.x = move_toward(velocity.x, walk_speed * input_direction, accel)
+		elif abs(velocity.x) > walk_speed + 1 and ((velocity.x > 0 and input_direction > 0) or (velocity.x < 0 and input_direction < 0)):
+			velocity.x = move_toward(velocity.x, walk_speed * input_direction, accel)
 	else:
 		if is_on_floor():
 			# no input, on the floor = slow down quickly
@@ -98,22 +98,21 @@ func get_input(delta: float) -> void:
 	
 	if Input.is_action_just_pressed("jump"):
 		if is_on_floor() or coyote_timer > 0:
+			lancejumped = false
 			jump.play()
 			velocity.y = -jump_velocity
 			coyote_timer = -1
-		else:
+		elif !lancejumped:
+			lancejumped = true
 			lance_swing.play()
 			lance.spin(looking_right)
+	
+	if Input.is_action_just_released("jump") or is_on_floor():
+		lance.stop_spin()
 	
 	if Input.is_action_just_pressed("escape"):
 		if devmode: get_tree().quit()
 		else: find_parent("Main").open_main_menu()
-	
-	if Input.is_action_just_pressed("toggleMode"):
-		if toggle_lancemode:
-			toggle_lancemode = false
-		else:
-			toggle_lancemode = true
 	
 	if devmode:
 		if Input.is_action_just_pressed("increase_length"):
@@ -121,6 +120,11 @@ func get_input(delta: float) -> void:
 		if Input.is_action_just_pressed("decrease_length"):
 			lance.decrease_length()
 
+func _coyote_time(delta: float) -> void:
+	if is_on_floor():
+		coyote_timer = max_coyote_time
+	else:
+		coyote_timer -= delta
 
 func face_direction(input_direction:float) -> void:
 	if input_direction > 0:
@@ -134,26 +138,11 @@ func face_direction(input_direction:float) -> void:
 	else:
 		pass
 
-func _on_lance_on_lance_collision(collider: Variant, collision_point: Vector2) -> void:
-	if collider.is_in_group("enemy") and abs(velocity.x) >= sprint_speed/3:
+func _on_lance_collision(collider: Variant) -> void:
+	print(collider)
+	if collider.is_in_group("enemy") and abs(velocity.x) >= spear_speed:
 		stab.play()
 		collider.get_parent().die()
-		return
-	
-	if collider.is_in_group("destructable"):
-		if lance.spinning:
-			velocity.y = -400.0
-			collider.get_parent().explode()
-		elif abs(velocity.x) >= sprint_speed/3: collider.get_parent().explode()
-	
-	
-	if lance.spinning and collider.is_in_group("terrain"):
-		if toggle_lancemode:
-			if position.y < collision_point.y:
-				velocity.y -= log(lance.lance_length) * lance_jump
-		else:
-			velocity += find_catapult_vector(collision_point) * log(lance.lance_length) * lance_jump
-		return
 
 func find_catapult_vector(impact:Vector2) -> Vector2:
 	var pos_imp = (position - impact)
@@ -161,9 +150,3 @@ func find_catapult_vector(impact:Vector2) -> Vector2:
 	pos_imp = pos_imp.orthogonal()
 	
 	return pos_imp.normalized()
-
-func _coyote_time(delta: float) -> void:
-	if is_on_floor():
-		coyote_timer = max_coyote_time
-	else:
-		coyote_timer -= delta

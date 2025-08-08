@@ -39,11 +39,7 @@ texture = ExtResource("2_8jdyb")
 [node name="Lancetip" type="RayCast2D" parent="."]
 rotation = -1.5708
 target_position = Vector2(-1.39876e-06, 32)
-
-[node name="SpinTimer" type="Timer" parent="."]
-wait_time = 0.2
-
-[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+collision_mask = 12
 
 [node name="SpinningSprite" type="AnimatedSprite2D" parent="."]
 scale = Vector2(0.5, 0.5)
@@ -100,5 +96,3 @@ rotation = 5.49779
 target_position = Vector2(0, 32)
 collision_mask = 13
 collide_with_areas = true
-
-[connection signal="timeout" from="SpinTimer" to="." method="_on_spin_timer_timeout"]

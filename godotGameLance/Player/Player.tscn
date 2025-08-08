@@ -77,7 +77,7 @@ radius = 8.0
 z_index = 5
 collision_layer = 2
 script = ExtResource("1_3qydi")
-toggle_lancemode = false
+jump_velocity = 150.0
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -14)
@@ -100,21 +100,18 @@ position = Vector2(0, -9)
 position = Vector2(0, -10)
 target_position = Vector2(0, 23)
 
-[node name="AudioListener2D" type="AudioListener2D" parent="."]
-
 [node name="Sounds" type="Node2D" parent="."]
 
 [node name="Jump" type="AudioStreamPlayer2D" parent="Sounds"]
 stream = ExtResource("6_vlldt")
-volume_db = 13.57
 
 [node name="LanceSwing" type="AudioStreamPlayer2D" parent="Sounds"]
 stream = ExtResource("7_s1rgi")
-volume_db = 14.643
 
 [node name="Stab" type="AudioStreamPlayer2D" parent="Sounds"]
 stream = ExtResource("8_s1rgi")
-volume_db = 14.643
+
+[node name="AudioListener2D" type="AudioListener2D" parent="Sounds"]
 
 [node name="Speedometer" type="Label" parent="."]
 offset_left = -70.0
@@ -124,4 +121,4 @@ offset_bottom = -52.0
 theme_override_fonts/font = ExtResource("9_j23h2")
 text = "Speed:"
 
-[connection signal="on_lance_collision" from="Lance" to="." method="_on_lance_on_lance_collision"]
+[connection signal="on_lance_collision" from="Lance" to="." method="_on_lance_collision"]
