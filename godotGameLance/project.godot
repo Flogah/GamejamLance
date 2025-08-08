@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="JamLance"
-run/main_scene="uid://kfjj6iwcss1n"
+run/main_scene="uid://ck66hhmlvni7c"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="uid://bktyj2rhdh0ex"
 

@@ -100,12 +100,11 @@ func get_input(delta: float) -> void:
 		if is_on_floor() or coyote_timer > 0:
 			lancejumped = false
 			jump.play()
-			velocity.y = -jump_velocity
+			velocity.y = -jump_velocity  
 			coyote_timer = -1
-		elif !lancejumped:
-			lancejumped = true
+		else:
 			lance_swing.play()
-			lance.spin(looking_right)
+			lance.start_spin(looking_right)
 	
 	if Input.is_action_just_released("jump") or is_on_floor():
 		lance.stop_spin()
@@ -137,12 +136,6 @@ func face_direction(input_direction:float) -> void:
 		looking_right = -1
 	else:
 		pass
-
-func _on_lance_collision(collider: Variant) -> void:
-	print(collider)
-	if collider.is_in_group("enemy") and abs(velocity.x) >= spear_speed:
-		stab.play()
-		collider.get_parent().die()
 
 func find_catapult_vector(impact:Vector2) -> Vector2:
 	var pos_imp = (position - impact)

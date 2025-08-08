@@ -118,6 +118,18 @@ position = Vector2(71, 2)
 [node name="Bubble4" parent="Bubbles" instance=ExtResource("2_soq8b")]
 position = Vector2(116, -46)
 
+[node name="Bubble5" parent="Bubbles" instance=ExtResource("2_soq8b")]
+position = Vector2(75, -85)
+
+[node name="Bubble6" parent="Bubbles" instance=ExtResource("2_soq8b")]
+position = Vector2(118, -125)
+
+[node name="Bubble7" parent="Bubbles" instance=ExtResource("2_soq8b")]
+position = Vector2(71, -168)
+
+[node name="Bubble8" parent="Bubbles" instance=ExtResource("2_soq8b")]
+position = Vector2(116, -216)
+
 [node name="Enemies" type="Node2D" parent="."]
 
 [node name="Scarecrow" parent="Enemies" instance=ExtResource("3_sppqt")]
